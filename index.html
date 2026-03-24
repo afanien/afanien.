@@ -3,60 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كاشير المربط الاحترافي</title>
+    <title>نظام المربط الموحد</title>
     <style>
-        :root { --primary: #2e7d32; --dark: #1b5e20; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); margin: 0; padding: 15px; }
-        .wrapper { max-width: 1200px; margin: auto; display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        :root { --primary: #2e7d32; --accent: #ffd700; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+        .container { max-width: 1200px; margin: auto; display: grid; grid-template-columns: 1fr 350px; gap: 15px; }
         
-        /* لوحة التحكم والخدمات */
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        
-        .service-item { 
-            background: white; border: 2px solid #ddd; padding: 15px; border-radius: 12px;
-            text-align: center; cursor: pointer; position: relative;
+        /* الأزرار والخدمات */
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .btn-item { 
+            background: white; border: 2px solid var(--primary); padding: 15px 5px; border-radius: 10px;
+            cursor: pointer; text-align: center; font-weight: bold; transition: 0.3s;
         }
-        .service-item:hover { border-color: var(--primary); background: #f0fff0; }
-        .service-item b { display: block; font-size: 16px; color: var(--dark); }
-        .service-item span { color: #666; font-size: 14px; }
+        .btn-item:hover { background: var(--primary); color: white; }
+        .btn-item span { display: block; font-size: 12px; color: #666; margin-top: 5px; }
+        .btn-item:hover span { color: #eee; }
 
-        /* أزرار التحكم */
-        .admin-controls { margin-bottom: 20px; padding: 10px; border-bottom: 2px dashed #ccc; display: none; }
-        .btn-admin { background: #444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
-        .delete-btn { position: absolute; top: -5px; left: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; border: none; cursor: pointer; }
+        /* لوحة التحكم المخفية */
+        .admin-box { background: #eee; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; border: 1px solid #ccc; }
+        .admin-box input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
 
         /* الجانب المالي */
-        .sidebar { background: var(--primary); color: white; padding: 20px; border-radius: 15px; height: fit-content; }
-        .total-box { font-size: 35px; font-weight: bold; text-align: center; margin: 20px 0; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; }
+        .sidebar { background: var(--primary); color: white; padding: 20px; border-radius: 15px; height: fit-content; position: sticky; top: 10px; }
+        .total-val { font-size: 32px; font-weight: bold; text-align: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 15px 0; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: #333; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; color: #333; }
+        th { background: #e8f5e9; color: var(--primary); }
+
+        .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 8px; }
         
-        .action-btn { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        
-        @media (max-width: 850px) { .wrapper { grid-template-columns: 1fr; } }
+        @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
+<div class="container">
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="color: var(--primary);">خدمات المربط</h2>
-            <button class="btn-admin" onclick="toggleAdmin()">⚙️ لوحة التحكم</button>
+        <div style="display:flex; justify-content:space-between; align-items:center">
+            <h2 style="color:var(--primary)">كاشير المربط</h2>
+            <button onclick="toggleAdmin()" style="background:none; border:none; cursor:pointer">⚙️ الإعدادات</button>
         </div>
 
-        <div id="adminPanel" class="admin-controls">
-            <h4>إضافة خدمة جديدة:</h4>
-            <input type="text" id="newServiceName" placeholder="اسم الخدمة (مثلاً: إيواء)">
-            <input type="number" id="newServicePrice" placeholder="السعر">
-            <button onclick="addNewService()" style="background: var(--primary); color: white; border: none; padding: 5px 15px; cursor: pointer;">إضافة +</button>
+        <div id="adminPanel" class="admin-box">
+            <h4 style="margin:0 0 10px 0">إضافة/تعديل خدمة ثابتة للجميع:</h4>
+            <input type="text" id="serviceName" placeholder="اسم الخدمة">
+            <input type="number" id="servicePrice" placeholder="السعر">
+            <button onclick="saveService()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer">حفظ وتعميم</button>
+            <p style="font-size:11px; color:red">* التغيير هنا سيظهر عند كل من يفتح الرابط.</p>
         </div>
 
-        <div id="servicesGrid" class="grid"></div>
+        <div id="servicesContainer" class="services-grid">
+            </div>
 
-        <h3>سجل المبيعات اليومية</h3>
+        <h3>سجل المبيعات (محدث لحظياً)</h3>
         <table>
             <thead>
                 <tr>
@@ -65,89 +66,137 @@
                     <th>الوقت</th>
                 </tr>
             </thead>
-            <tbody id="salesLog"></tbody>
+            <tbody id="logBody"></tbody>
         </table>
     </div>
 
     <div class="sidebar">
-        <h3>الملخص المالي</h3>
-        <div class="total-box" id="displayTotal">0 ريال</div>
-        <button class="action-btn" onclick="window.print()">🖨 طباعة التقرير</button>
-        <button class="action-btn" style="background:#ff5252; color:white;" onclick="resetDay()">♻ تصفير اليومية</button>
+        <h3>إجمالي الدخل اليومي</h3>
+        <div class="total-val" id="totalDisplay">0 ريال</div>
+        <button class="btn-main" onclick="window.print()" style="background:white; color:var(--primary)">🖨 طباعة التقرير</button>
+        <button class="btn-main" onclick="resetAllData()" style="background:#ff5252; color:white">♻ تصفير المبيعات للكل</button>
+        <div id="syncStatus" style="font-size:11px; text-align:center; opacity:0.8; margin-top:10px">جاري المزامنة...</div>
     </div>
 </div>
 
 <script>
-    // البيانات الافتراضية
-    let services = JSON.parse(localStorage.getItem('myServices')) || [
-        { name: "ربع ساعة", price: 20 },
-        { name: "نصف ساعة", price: 40 },
-        { name: "ساعة كاملة", price: 70 }
-    ];
+    // الرابط السحابي الموحد (JSONBin)
+    const CLOUD_URL = "https://api.jsonbin.io/v3/b/67e17409acd3513a22f3068e";
+    const SECRET_KEY = "$2a$10$R9n.j/vD4oU/v.v6tY1G7.6X5A9z9Z6z9Z6z9Z6z9Z6z9Z6z9Z6z";
 
-    let dailyTotal = 0;
-    let isAdmin = false;
+    let db = {
+        config: [
+            { name: "ربع ساعة", price: 20 },
+            { name: "نصف ساعة", price: 40 },
+            { name: "ساعة كاملة", price: 70 }
+        ],
+        sales: [],
+        total: 0
+    };
 
-    function renderServices() {
-        const grid = document.getElementById('servicesGrid');
-        grid.innerHTML = '';
-        services.forEach((s, index) => {
-            const div = document.createElement('div');
-            div.className = 'service-item';
-            div.innerHTML = `
-                ${isAdmin ? `<button class="delete-btn" onclick="deleteService(${index}, event)">×</button>` : ''}
-                <b>${s.name}</b>
-                <span>${s.price} ريال</span>
-            `;
-            div.onclick = () => !isAdmin && addSale(s.name, s.price);
-            grid.appendChild(div);
-        });
-        localStorage.setItem('myServices', JSON.stringify(services));
-    }
-
-    function toggleAdmin() {
-        isAdmin = !isAdmin;
-        document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
-        renderServices();
-    }
-
-    function addNewService() {
-        const name = document.getElementById('newServiceName').value;
-        const price = document.getElementById('newServicePrice').value;
-        if(name && price) {
-            services.push({ name: name, price: parseInt(price) });
-            renderServices();
-            document.getElementById('newServiceName').value = '';
-            document.getElementById('newServicePrice').value = '';
+    // جلب البيانات من السحابة عند الفتح
+    async function loadCloudData() {
+        try {
+            const res = await fetch(`${CLOUD_URL}/latest`, {
+                headers: { "X-Master-Key": SECRET_KEY }
+            });
+            const data = await res.json();
+            db = data.record;
+            renderUI();
+            document.getElementById('syncStatus').innerText = "✅ البيانات محدثة";
+        } catch (e) {
+            document.getElementById('syncStatus').innerText = "⚠️ فشل التزامن";
         }
     }
 
-    function deleteService(index, event) {
-        event.stopPropagation();
-        services.splice(index, 1);
-        renderServices();
+    // حفظ أي تغيير (خدمات أو مبيعات) للسحابة
+    async function syncToCloud() {
+        document.getElementById('syncStatus').innerText = "☁ جاري الحفظ...";
+        try {
+            await fetch(CLOUD_URL, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": SECRET_KEY
+                },
+                body: JSON.stringify(db)
+            });
+            document.getElementById('syncStatus').innerText = "✅ تم الحفظ للجميع";
+            renderUI();
+        } catch (e) {
+            alert("خطأ في الاتصال بالسحابة");
+        }
+    }
+
+    function renderUI() {
+        // تحديث أزرار الخدمات
+        const container = document.getElementById('servicesContainer');
+        container.innerHTML = '';
+        db.config.forEach((s, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'btn-item';
+            btn.innerHTML = `${s.name} <span>${s.price} ريال</span>`;
+            if (document.getElementById('adminPanel').style.display === 'block') {
+                btn.innerHTML += `<button onclick="removeService(${index})" style="color:red; border:none; background:none; cursor:pointer; font-size:10px">[حذف]</button>`;
+            }
+            btn.onclick = (e) => {
+                if(e.target.tagName !== 'BUTTON') addSale(s.name, s.price);
+            };
+            container.appendChild(btn);
+        });
+
+        // تحديث جدول المبيعات
+        const log = document.getElementById('logBody');
+        log.innerHTML = '';
+        db.sales.forEach(sale => {
+            const row = log.insertRow();
+            row.innerHTML = `<td>${sale.name}</td><td>${sale.price} ريال</td><td>${sale.time}</td>`;
+        });
+
+        document.getElementById('totalDisplay').innerText = db.total + " ريال";
     }
 
     function addSale(name, price) {
-        const log = document.getElementById('salesLog');
-        const row = log.insertRow(0);
         const now = new Date();
-        row.innerHTML = `<td>${name}</td><td>${price} ريال</td><td>${now.getHours()}:${now.getMinutes()}</td>`;
-        
-        dailyTotal += price;
-        document.getElementById('displayTotal').innerText = dailyTotal + " ريال";
+        const timeStr = now.getHours() + ":" + (now.getMinutes()<10?'0':'') + now.getMinutes();
+        db.sales.unshift({ name, price, time: timeStr });
+        db.total += price;
+        syncToCloud();
     }
 
-    function resetDay() {
-        if(confirm("هل تريد تصفير مبيعات اليوم؟")) {
-            document.getElementById('salesLog').innerHTML = '';
-            dailyTotal = 0;
-            document.getElementById('displayTotal').innerText = "0 ريال";
+    function saveService() {
+        const name = document.getElementById('serviceName').value;
+        const price = parseInt(document.getElementById('servicePrice').value);
+        if(name && price) {
+            db.config.push({ name, price });
+            syncToCloud();
+            document.getElementById('serviceName').value = '';
+            document.getElementById('servicePrice').value = '';
         }
     }
 
-    // التشغيل الأول
-    renderServices();
+    function removeService(index) {
+        db.config.splice(index, 1);
+        syncToCloud();
+    }
+
+    function toggleAdmin() {
+        const panel = document.getElementById('adminPanel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        renderUI();
+    }
+
+    function resetAllData() {
+        if(confirm("سيتم تصفير مبيعات اليوم عند الجميع، هل أنت متأكد؟")) {
+            db.sales = [];
+            db.total = 0;
+            syncToCloud();
+        }
+    }
+
+    // تحديث تلقائي كل 20 ثانية لضمان رؤية مبيعات الآخرين
+    setInterval(loadCloudData, 20000);
+    loadCloudData();
 </script>
 
 </body>
