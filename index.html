@@ -3,34 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كاشير المربط المشترك</title>
+    <title>كاشير المربط السحابي</title>
     <style>
-        :root { --primary: #2e7d32; --bg: #f8faf9; }
+        :root { --primary: #2e7d32; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
         .container { max-width: 1000px; margin: auto; display: grid; grid-template-columns: 1fr 300px; gap: 15px; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .services { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-        .btn-item { background: #fff; border: 2px solid var(--primary); padding: 15px 5px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; font-size: 14px; }
-        .btn-item:active { background: var(--primary); color: white; }
-        .sidebar { background: var(--primary); color: white; padding: 15px; border-radius: 12px; height: fit-content; text-align: center; }
-        .total-amount { font-size: 28px; margin: 15px 0; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; }
-        .status-bar { font-size: 10px; margin-bottom: 5px; color: #666; }
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .btn-service { background: white; border: 2px solid var(--primary); padding: 15px; border-radius: 10px; cursor: pointer; text-align: center; font-weight: bold; font-size: 15px; }
+        .btn-service:active { background: var(--primary); color: white; }
+        .sidebar { background: var(--primary); color: white; padding: 20px; border-radius: 15px; height: fit-content; text-align: center; }
+        .total-box { font-size: 30px; margin: 15px 0; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; color: #333; }
+        .status { font-size: 11px; color: #666; margin-bottom: 5px; }
+        @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <div class="status-bar" id="syncStatus">جاري التزامن...</div>
-        <h2 style="color:var(--primary); margin-top:0;">خدمات المربط</h2>
+        <div class="status" id="syncStatus">جاري المزامنة...</div>
+        <h2 style="color:var(--primary); margin-top:0;">كاشير المربط</h2>
         
-        <div id="buttonsGrid" class="services">
+        <div id="servicesGrid" class="services-grid">
             </div>
 
-        <h3>سجل المبيعات (من كل الأجهزة)</h3>
+        <h3>سجل المبيعات المشترك</h3>
         <table>
             <thead>
                 <tr>
@@ -39,101 +39,95 @@
                     <th>الوقت</th>
                 </tr>
             </thead>
-            <tbody id="logTable"></tbody>
+            <tbody id="salesLog"></tbody>
         </table>
     </div>
 
     <div class="sidebar">
-        <h3>الإجمالي العام</h3>
-        <div class="total-amount" id="totalVal">0 ريال</div>
-        <button onclick="fetchData()" style="width:100%; padding:8px; cursor:pointer;">🔄 تحديث يدوي</button>
-        <button onclick="resetData()" style="width:100%; margin-top:40px; background:#ff4444; color:white; border:none; padding:8px; cursor:pointer; border-radius:5px;">⚠️ تصفير السجل للكل</button>
+        <h3>الإجمالي اليومي</h3>
+        <div class="total-box" id="totalVal">0 ريال</div>
+        <button onclick="fetchData()" style="width:100%; padding:10px; cursor:pointer; border-radius:5px;">🔄 تحديث يدوي</button>
+        <button onclick="resetData()" style="width:100%; margin-top:30px; background:#ff5252; color:white; border:none; padding:10px; cursor:pointer; border-radius:5px;">⚠️ تصفير السجل للكل</button>
     </div>
 </div>
 
 <script>
-    // معرف سحابي فريد لمربطك (يمكنك تغييره لاحقاً لخصوصية أكثر)
-    const BIN_URL = "https://api.jsonbin.io/v3/b/67e17409acd3513a22f3068e";
-    const API_KEY = "$2a$10$R9n.j/vD4oU/v.v6tY1G7.6X5A9z9Z6z9Z6z9Z6z9Z6z9Z6z9Z6z";
+    // بيانات السحابة (JSONBin) لربط كل الجوالات ببعضها
+    const URL = "https://api.jsonbin.io/v3/b/67e17409acd3513a22f3068e";
+    const KEY = "$2a$10$R9n.j/vD4oU/v.v6tY1G7.6X5A9z9Z6z9Z6z9Z6z9Z6z9Z6z9Z6z";
 
-    let cloudData = { sales: [], total: 0 };
+    let db = { sales: [], total: 0 };
 
-    // الأزرار الثابتة (عدلها من هنا)
-    const services = [
+    // الخدمات الثابتة (يمكنك تعديل الأسعار هنا)
+    const myServices = [
         { name: "ربع ساعة", price: 20 },
         { name: "نصف ساعة", price: 40 },
         { name: "ساعة كاملة", price: 70 },
-        { name: "حصة تدريب", price: 100 }
+        { name: "تدريب", price: 100 },
+        { name: "فحص", price: 50 }
     ];
 
     // جلب البيانات من السحابة
     async function fetchData() {
-        document.getElementById('syncStatus').innerText = "🔄 جاري التحديث...";
         try {
-            const res = await fetch(`${BIN_URL}/latest`, { headers: { "X-Master-Key": API_KEY } });
-            const result = await res.json();
-            cloudData = result.record;
-            updateDisplay();
-            document.getElementById('syncStatus').innerText = "✅ البيانات محدثة عند الجميع";
+            const res = await fetch(`${URL}/latest`, { headers: { "X-Master-Key": KEY } });
+            const data = await res.json();
+            db = data.record;
+            render();
+            document.getElementById('syncStatus').innerText = "✅ متصل (البيانات موحدة عند الجميع)";
         } catch (e) {
-            document.getElementById('syncStatus').innerText = "❌ فشل التزامن";
+            document.getElementById('syncStatus').innerText = "❌ خطأ في الاتصال";
         }
     }
 
-    // إضافة بيعة وحفظها في السحابة فوراً
+    // إضافة بيعة وحفظها للجميع
     async function addSale(name, price) {
-        const now = new Date();
-        const time = now.getHours() + ":" + (now.getMinutes()<10?'0':'') + now.getMinutes();
+        const time = new Date().toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'});
+        db.sales.unshift({ name, price, time });
+        db.total += price;
+        render();
         
-        cloudData.sales.unshift({ name, price, time });
-        cloudData.total += price;
-
-        updateDisplay();
-        
-        // إرسال للسيرفر
-        document.getElementById('syncStatus').innerText = "☁ جاري الحفظ في السحابة...";
-        await fetch(BIN_URL, {
+        await fetch(URL, {
             method: 'PUT',
-            headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
-            body: JSON.stringify(cloudData)
+            headers: { "Content-Type": "application/json", "X-Master-Key": KEY },
+            body: JSON.stringify(db)
         });
-        document.getElementById('syncStatus').innerText = "✅ تم الحفظ والمزامنة";
     }
 
-    function updateDisplay() {
-        const log = document.getElementById('logTable');
+    function render() {
+        const log = document.getElementById('salesLog');
         log.innerHTML = '';
-        cloudData.sales.forEach(s => {
+        db.sales.forEach(s => {
             const row = log.insertRow();
             row.innerHTML = `<td>${s.name}</td><td>${s.price} ريال</td><td>${s.time}</td>`;
         });
-        document.getElementById('totalVal').innerText = cloudData.total + " ريال";
+        document.getElementById('totalVal').innerText = db.total + " ريال";
     }
 
-    // إنشاء الأزرار عند التشغيل
-    const grid = document.getElementById('buttonsGrid');
-    services.forEach(s => {
-        const b = document.createElement('div');
-        b.className = 'btn-item';
-        b.innerHTML = `${s.name}<br><small>${s.price} ريال</small>`;
-        b.onclick = () => addSale(s.name, s.price);
-        grid.appendChild(b);
+    // توليد الأزرار
+    const grid = document.getElementById('servicesGrid');
+    myServices.forEach(s => {
+        const btn = document.createElement('div');
+        btn.className = 'btn-service';
+        btn.innerHTML = `${s.name}<br><small>${s.price} ريال</small>`;
+        btn.onclick = () => addSale(s.name, s.price);
+        grid.appendChild(btn);
     });
 
     async function resetData() {
-        if(confirm("سيتم تصفير السجل عند جميع الجوالات، هل أنت متأكد؟")) {
-            cloudData = { sales: [], total: 0 };
-            updateDisplay();
-            await fetch(BIN_URL, {
+        if(confirm("تنبيه: سيتم مسح المبيعات عند جميع المستخدمين. هل أنت متأكد؟")) {
+            db = { sales: [], total: 0 };
+            render();
+            await fetch(URL, {
                 method: 'PUT',
-                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
-                body: JSON.stringify(cloudData)
+                headers: { "Content-Type": "application/json", "X-Master-Key": KEY },
+                body: JSON.stringify(db)
             });
         }
     }
 
-    // تحديث تلقائي كل 15 ثانية لجلب مبيعات الجوالات الأخرى
-    setInterval(fetchData, 15000);
+    // تحديث تلقائي كل 20 ثانية لضمان مزامنة الجوالات الأخرى
+    setInterval(fetchData, 20000);
     fetchData();
 </script>
 
