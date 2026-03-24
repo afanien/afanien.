@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام كاشير المربط المطور</title>
+    <title>نظام مبيعات المربط - لوحة التحكم</title>
     <style>
-        :root { --primary: #2e7d32; --bg: #f8faf9; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        .wrapper { max-width: 1100px; margin: auto; display: grid; grid-template-columns: 1fr 320px; gap: 15px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        :root { --primary: #2e7d32; --danger: #d32f2f; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+        .wrapper { max-width: 1000px; margin: auto; display: grid; grid-template-columns: 1fr 300px; gap: 15px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        /* لوحة التحكم */
-        .admin-panel { background: #f1f1f1; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed var(--primary); }
-        .admin-panel input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 5px; width: 120px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .btn-service { 
+        /* تصميم الأزرار والخدمات */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 20px 0; }
+        .service-card { 
             background: white; border: 2px solid var(--primary); padding: 15px 5px; border-radius: 10px;
-            cursor: pointer; text-align: center; font-weight: bold; position: relative;
+            text-align: center; cursor: pointer; position: relative; transition: 0.2s;
         }
-        .btn-service:hover { background: #e8f5e9; }
-        .btn-service .price { display: block; font-size: 12px; color: #666; font-weight: normal; }
-        .del-item { position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: none; }
+        .service-card:hover { background: #e8f5e9; }
+        .service-card b { display: block; font-size: 15px; }
+        .service-card span { font-size: 13px; color: #666; }
+
+        /* لوحة التحكم */
+        .admin-panel { background: #eee; padding: 15px; border-radius: 10px; border: 2px dashed #999; margin-bottom: 20px; }
+        .admin-panel input { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; width: 100px; }
+        .del-badge { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border-radius: 50%; width: 22px; height: 22px; border: none; cursor: pointer; display: none; }
 
         .sidebar { background: var(--primary); color: white; padding: 20px; border-radius: 12px; height: fit-content; text-align: center; }
-        .total-box { font-size: 32px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .total-box { font-size: 30px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 15px 0; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; }
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
         
-        .btn-action { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
-        
-        @media (max-width: 800px) { .wrapper { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -40,12 +41,46 @@
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2 style="color:var(--primary); margin:0;">كاشير المربط</h2>
-            <button onclick="toggleAdminMode()" id="adminBtn" style="background:#444; color:white; border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">⚙️ لوحة التحكم</button>
+            <button onclick="toggleAdmin()" id="adminBtn" style="background:#333; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">⚙️ لوحة التحكم</button>
         </div>
 
-        <div id="adminArea" class="admin-panel" style="display:none;">
-            <h4>إضافة خدمة جديدة للجميع:</h4>
-            <input type="text" id="newItemName" placeholder="اسم الخدمة">
-            <input type="number" id="newItemPrice" placeholder="السعر">
-            <button onclick="addItem()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">إضافة +</button>
-            
+        <div id="adminPanel" class="admin-panel" style="display:none;">
+            <h4 style="margin-top:0;">إضافة خدمة/منتج جديد:</h4>
+            <input type="text" id="itemName" placeholder="اسم الخدمة">
+            <input type="number" id="itemPrice" placeholder="السعر">
+            <button onclick="addNewItem()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">إضافة +</button>
+        </div>
+
+        <div id="servicesGrid" class="grid"></div>
+
+        <h3>سجل المبيعات المشترك</h3>
+        <table>
+            <thead><tr><th>الخدمة</th><th>السعر</th><th>الوقت</th></tr></thead>
+            <tbody id="salesLog"></tbody>
+        </table>
+    </div>
+
+    <div class="sidebar">
+        <h3>الإجمالي اليومي</h3>
+        <div class="total-box" id="totalVal">0 ريال</div>
+        <button class="btn" onclick="fetchData()" style="background:white; color:var(--primary);">🔄 تحديث البيانات</button>
+        <button class="btn" onclick="resetSales()" style="background:var(--danger); color:white;">♻ تصفير المبيعات</button>
+        <div id="status" style="font-size:10px; margin-top:10px; opacity:0.8;">جاري الاتصال بالسحابة...</div>
+    </div>
+</div>
+
+<script>
+    const URL = "https://api.jsonbin.io/v3/b/67e17409acd3513a22f3068e";
+    const KEY = "$2a$10$R9n.j/vD4oU/v.v6tY1G7.6X5A9z9Z6z9Z6z9Z6z9Z6z9Z6z9Z6z";
+
+    let db = { services: [], sales: [], total: 0 };
+    let editMode = false;
+
+    // 1. جلب البيانات
+    async function fetchData() {
+        try {
+            const res = await fetch(`${URL}/latest`, { headers: { "X-Master-Key": KEY } });
+            const result = await res.json();
+            db = result.record;
+            if (!db.services) db.
+                
