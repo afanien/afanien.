@@ -3,32 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام كاشير المربط - نسخة متكاملة</title>
+    <title>كاشير المربط المتكامل</title>
     <style>
-        :root { --primary: #2e7d32; --dark: #1b5e20; --bg: #f4f7f6; --white: #ffffff; --danger: #d32f2f; }
+        :root { --p: #2e7d32; --bg: #f4f7f6; --w: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        .wrapper { max-width: 1200px; margin: auto; display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
-        .card { background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .wrapper { max-width: 1100px; margin: auto; display: grid; grid-template-columns: 1fr 320px; gap: 15px; }
+        .card { background: var(--w); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* الترويسة */
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg); padding-bottom: 15px; margin-bottom: 20px; }
-        .header h1 { color: var(--primary); margin: 0; font-size: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg); padding-bottom: 10px; margin-bottom: 20px; }
+        h1 { color: var(--p); margin: 0; font-size: 22px; }
 
-        /* لوحة التحكم (إضافة المنتجات) */
-        .admin-panel { background: #e8f5e9; border: 2px dashed var(--primary); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
-        .admin-panel input { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px; width: 150px; }
-        
-        /* شبكة أزرار البيع */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .item-btn { 
-            background: var(--white); border: 2px solid var(--primary); padding: 20px 10px; border-radius: 12px; 
-            text-align: center; cursor: pointer; transition: 0.2s; position: relative; font-weight: bold;
+        /* لوحة التحكم */
+        .admin-box { background: #e8f5e9; border: 2px dashed var(--p); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
+        .admin-box input { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px; width: 140px; }
+
+        /* شبكة الخدمات */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .item { 
+            background: var(--w); border: 2px solid var(--p); padding: 20px 10px; border-radius: 12px; 
+            text-align: center; cursor: pointer; position: relative; font-weight: bold; transition: 0.2s;
         }
-        .item-btn:active { background: var(--primary); color: white; transform: scale(0.95); }
-        .item-btn span { display: block; font-size: 13px; color: #666; font-weight: normal; margin-top: 5px; }
-        .item-btn:hover span { color: inherit; }
-        .del-item { position: absolute; top: -10px; left: -10px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: none; font-size: 14px; }
+        .item:active { transform: scale(0.95); background: var(--p); color: white; }
+        .item span { display: block; font-size: 13px; font-weight: normal; margin-top: 5px; color: #666; }
+        .del-btn { position: absolute; top: -10px; right: -10px; background: red; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: none; }
 
-        /* الجانب المالي والتقارير */
-        .sidebar { background: var(--primary); color: white; padding: 25px; border-radius: 15px; height: fit-content; position: sticky; top: 10px; }
-        .report-box { background: rgba(0,0,0,0.15); padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 2
+        /* التقارير والجانب المالي */
+        .sidebar { background: var(--p); color: white; padding: 20px; border-radius: 15px; height: fit-content; text-align: center; }
+        .total-box { font-size: 34px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 15px 0; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; color: #333; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }
+        .btn-reset { background: #ff5252; color: white; margin-top: 20px; }
+        
+        @media (max-width: 800px) { .wrapper { grid-template-columns: 1fr; } }
+        @media print { .admin-box, .btn, #tglAdmin, .del-btn { display: none !important; } }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="card">
+        <div class="header">
+            <h1>كاشير المربط</h1>
+            <button onclick="toggleAdmin()" id="tglAdmin" style="background:#444; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">⚙️ لوحة التحكم</button>
+        </div>
+
+        <div id="adminPanel" class="admin-box">
+            <h4 style="margin:0 0 10px 0;">إضافة خدمة/منتج جديد:</h4>
+            <input type="text" id="inName" placeholder="اسم الخدمة">
+            <input type="number" id="inPrice" placeholder="السعر (ريال)">
+            <button onclick="addItem()" style="background:var(--p); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">حفظ وتثبيت +</button>
+        </div>
+
+        <div id="menu" class="grid"></div>
+
+        <div style="margin-top:30px;">
+            <h3>سجل مبيعات اليوم</h3>
+            <table>
+                <thead><tr><th>الخدمة</th><th>السعر</th><th>الوقت</th></tr></thead>
+                <tbody id="log"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h3>الإجمالي</h3>
+        <div class="total-box" id="totalDisplay">0 ريال</div>
+        <button class="btn" style="background:white; color:var(--p);" onclick="window.print()">🖨 طباعة التقرير</button>
+        <button class="btn btn-reset" onclick="resetToday()">♻ تصفير اليوم</button>
+        <p style="font-size:10px; margin-top:15px; opacity:0.8;">* البيانات محفوظة محلياً على هذا الجهاز.</p>
+    </div>
+</div>
+
+<script>
+    // تهيئة البيانات
+    let services = JSON.parse(localStorage.getItem('pos_serv')) || [
+        {name: "ربع ساعة", price: 20},
+        {name: "نصف ساعة", price: 40},
+        {name: "ساعة كاملة", price: 70}
+    ];
+    let sales = JSON.parse(localStorage.getItem('pos_sales')) || [];
+    let total = parseInt(localStorage.getItem('pos_total')) || 0;
+    let editMode = false;
+
+    function render() {
+        // تحديث الأزرار
+        const menu = document.getElementById('menu');
+        menu.innerHTML = '';
+        services.forEach((s, i) => {
+            const d = document.createElement('div');
+            d.className = 'item';
+            d.innerHTML = `
+                <button class="del-btn" onclick="delItem(${i}, event)" style="display:${editMode?'block':'none'}">×</button>
+                ${s.name} <span>${s.price} ريال</span>
+            `;
+            d.onclick = () => { if(!editMode) addSale(s.name, s.price); };
+            menu.appendChild(d);
+        });
+
+        // تحديث الجدول
+        const log = document.getElementById('log');
+        log.innerHTML = '';
+        sales.forEach(s => {
+            const r = log.insertRow();
+            r.innerHTML = `<td>${s.name}</td><td>${s.price} ريال</td><td>${s.time}</td>`;
+        });
+
+        document.getElementById('totalDisplay').innerText = total + " ريال";
+
+        // حفظ في الذاكرة
+        localStorage.setItem('pos_serv', JSON.stringify(services));
+        localStorage.setItem('pos_sales', JSON.stringify(sales));
+        localStorage.setItem('pos_total', total);
+    }
+
+    function addSale(name, price) {
+        const t = new Date().toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'});
+        sales.unshift({name, price, time: t});
+        total += price;
+        render();
+    }
+
+    function toggleAdmin() {
+        editMode = !editMode;
+        document.getElementById('adminPanel').style.display = editMode ? 'block' : 'none';
+        document.getElementById('tglAdmin').innerText = editMode ? "✅ حفظ التعديلات" : "⚙️ لوحة التحكم";
+        render();
+    }
+
+    function addItem() {
+        const n = document.getElementById('inName').value;
+        const p = document.getElementById('inPrice').value;
+        if(n && p) {
+            services.push({name: n, price: parseInt(p)});
+            document.getElementById('inName').value = '';
+            document.getElementById('inPrice').value = '';
+            render();
+        }
+    }
+
+    function delItem(i, e) {
+        e.stopPropagation();
+        services.splice(i, 1);
+        render();
+    }
+
+    function resetToday() {
+        if(confirm("تصفير مبيعات اليوم؟")) {
+            sales = []; total = 0; render();
+        }
+    }
+
+    render();
+</script>
+</body>
+</html>
