@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كاشير المربط الذكي</title>
+    <style>
+        :root { --p-color: #2e7d32; --s-color: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: #eef2f3; margin: 0; padding: 15px; }
+        .wrapper { max-width: 1100px; margin: auto; display: grid; grid-template-columns: 1fr 320px; gap: 15px; }
+        .main-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .item-btn { 
+            background: white; border: 2px solid var(--p-color); padding: 15px 10px; border-radius: 10px;
+            cursor: pointer; text-align: center; transition: 0.3s;
+        }
+        .item-btn:hover { background: var(--p-color); color: white; transform: translateY(-3px); }
+        .item-btn b { display: block; font-size: 16px; }
+        .item-btn span { font-size: 13px; opacity: 0.8; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th { background: #f1f1f1; padding: 10px; border-bottom: 2px solid var(--p-color); }
+        td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+        
+        .sidebar { background: var(--p-color); color: white; padding: 20px; border-radius: 15px; height: fit-content; }
+        .total-screen { font-size: 32px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; }
+        button.action { width: 100%; padding: 12px; margin-bottom: 10px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
+        
+        @media (max-width: 768px) { .wrapper { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="main-card">
+        <h2 style="color:var(--p-color); margin-top:0;">خدمات المربط</h2>
+        <div id="servicesGrid" class="grid"></div>
+        
+        <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">سجل العمليات</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>الخدمة</th>
+                    <th>العميل/الحصان</th>
+                    <th>السعر</th>
+                </tr>
+            </thead>
+            <tbody id="salesLog"></tbody>
+        </table>
+    </div>
+
+    <div class="sidebar">
+        <h3>مبيعات اليوم</h3>
+        <div class="total-screen" id="displayTotal">0 ريال</div>
+        <button class="action" onclick="window.print()">🖨 طباعة التقرير</button>
+        <button class="action" style="background:#d32f2f; color:white;" onclick="confirmReset()">♻ تصفير اليومية</button>
+    </div>
+</div>
+
+<script>
+    /* --- لوحة التحكم: عدل هنا فقط لتقوم بتغيير الأسماء والأسعار --- */
+    const myConfig = [
+        { title: "ربع ساعة", price: 20 },
+        { title: "نصف ساعة", price: 40 },
+        { title: "ساعة كاملة", price: 70 },
+        { title: "تدريب حصة", price: 100 },
+        { title: "فحص طبي", price: 50 },
+        { title: "إيواء يومي", price: 30 }
+    ];
+    /* -------------------------------------------------------- */
+
+    let dailyTotal = 0;
+    const grid = document.getElementById('servicesGrid');
+
+    // إنشاء الواجهة
+    myConfig.forEach(item => {
+        const btn = document.createElement('div');
+        btn.className = 'item-btn';
+        btn.innerHTML = `<b>${item.title}</b><span>${item.price} ريال</span>`;
+        btn.onclick = () => registerSale(item.title, item.price);
+        grid.appendChild(btn);
+    });
+
+    function registerSale(name, price) {
+        const info = prompt("اسم العميل أو الحصان (اختياري):") || "عميل عام";
+        const log = document.getElementById('salesLog');
+        const row = log.insertRow(0);
+        row.innerHTML = `<td>${name}</td><td>${info}</td><td>${price} ريال</td>`;
+        
+        dailyTotal += price;
+        document.getElementById('displayTotal').innerText = dailyTotal + " ريال";
+    }
+
+    function confirmReset() {
+        if(confirm("هل تريد مسح جميع سجلات اليوم؟")) {
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
